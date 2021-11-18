@@ -1,45 +1,49 @@
 from utils import *
+from math import pi
 
 class Car:
-    def __init__(self, name, m, P, mu, a_brake, cla, cda):
+    def __init__(self, name, mCar, P, mu, a_brake, cla, cda, DAir):
         self.name = name        # Just the name of the instance
-        self.mass = m           # Mass of the car with fuel and driver, in kilograms
+        self.mCar = mCar        # Mass of the car with fuel and driver, in kilograms
         self.power = P          # Average power of the engine, calculated using acceleration event times, in Watts
         self.mu = mu            # Tire coefficient of friction
         self.a_brake = a_brake  # Average longitudinal acceleration when braking
-        self.cla = cla          # Coefficient of lift * area (negative for downforce)
-        self.cda = cda          # Coefficient of drag * area (positive)
+        self.CLA = cla          # Coefficient of lift * area (negative for downforce)
+        self.CDA = cda          # Coefficient of drag * area (positive)
+        self.DAir = DAir        # Ambient air density (kg/m^3)
         self.dt = 0.001        
     
-    def getDownforce(self, v, D):
+    def getDownforce(self, v):
         # Returns downforce (N), generally > 0
         # Inputs: v = velocity (m/s); D = air density (kg/m^3)
-        return -0.5 * self.cla * D * v**2
+        return -0.5 * self.CLA * self.DAir * v**2
 
-    def getDrag(self, v, D):
+    def getDrag(self, v):
         # Returns drag (N), generally > 0
         # Inputs: v = velocity (m/s); D = air density (kg/m^3)
-        return 0.5 * self.cda * D * v**2
+        return 0.5 * self.CDA * self.DAir * v**2
     
     def findCorneringSpeed(self, radius):
         # Returns the maximum speed in meters per second that the car could go through a corner of given radius
-        # Finds speed where centripetal force = cornering force. This formula can be reduced into a quadratic and solved
+        # Finds speed where centripetal force = cornering force.
 
-        radius = radius
-        
-        a = self.mass/radius - self.mu*self.df[0]
-        b = self.mu*self.df[1]
-        c = -1*self.mu*(self.mass*9.81 + self.df[2])
-        
-        v = max(quadraticFormula(a,b,c))
+        return sqrt(self.mu*self.mCar*9.81 / (self.mCar/radius - 0.5*self.mu*self.DAir*self.CLA))
 
-        if v > self.df[4]:
-            return v
-        else:
-            a = 1
-            b = -radius/self.mass * self.mu * self.df[3]/self.df[4]
-            c = -radius * self.mass * self.mu * 9.81
-            return max(quadraticFormula(a,b,c))
+        # radius = radius
+        
+        # a = self.mass/radius - self.mu*self.df[0]
+        # b = self.mu*self.df[1]
+        # c = -1*self.mu*(self.mass*9.81 + self.df[2])
+        
+        # v = max(quadraticFormula(a,b,c))
+
+        # if v > self.df[4]:
+        #     return v
+        # else:
+        #     a = 1
+        #     b = -radius/self.mass * self.mu * self.df[3]/self.df[4]
+        #     c = -radius * self.mass * self.mu * 9.81
+        #     return max(quadraticFormula(a,b,c))
 
     def findCorneringTime(self, radius, theta):
         # Returns time to go through a corner in seconds given the radius of the turn in meters and the angle of the turn
@@ -52,37 +56,37 @@ class Car:
     def findStraightTime(self, v_i, v_f, length):
         # Figures out how long it takes to go a specified distance starting and ending at specified speeds using numerical integration
         t = 0
-		d = 0
-		a = 0
-		v = v_i
-		self.drivetrain.selectGear(v_i)
+        d = 0
+        a = 0
+        v = v_i
+        self.drivetrain.selectGear(v_i)
         
         # While d is less than the length of the straight minus the distance required to slow down, accelerate
         while(d < length - self.findBrakingDistance(v, v_f)):
             self.drivetrain.selectGear(v)
-			
-		#Velocity Verlet
-			a_prev = a
-			d += v*self.dt + (0.5*a_prev*self.dt**2)
-			
-            	# Some calculations to figure out how much throttle to use
-			max_force = self.drivetrain.getWheelForce() - self.getDrag(v) # The most force that the engine can supply minus drag
-			max_traction = self.mu * (self.mass*9.81 + self.getDownforce(v)) # The most friction the tires can supply without slipping
-			throttle_percent = max_traction/max_force # Set the 'throttle' so that the car doesn't spin the tires
-			if throttle_percent > 1: # Don't let throttle_percent go over 1 or under 0
-				throttle_percent = 1
-			elif throttle_percent < 0:
-				throttle_percent = 0
-			
-			a = (max_force * throttle_percent) / self.mass
-			a_avg = (a + a_prev)/2
-			v += a_avg*self.dt
-			t += self.dt
-			
-			#Print stuff for debugging
-			print("Time: " + str(t))
-			print("RPM: " + str(self.drivetrain.rpm) + "\tPower: " + str(self.drivetrain.getPower()) + "\tTorque: " + str(self.drivetrain.getTorque()) + "\tThrottle: " + str(throttle_percent))
-			print("Distance: " + str(d) + "\tVelocity: " + str(v) + "\tAccel: " + str(a_avg) + "\n")
+
+            #Velocity Verlet
+            a_prev = a
+            d += v*self.dt + (0.5*a_prev*self.dt**2)
+            
+            # Some calculations to figure out how much throttle to use
+            max_force = self.drivetrain.getWheelForce() - self.getDrag(v) # The most force that the engine can supply minus drag
+            max_traction = self.mu * (self.mass*9.81 + self.getDownforce(v)) # The most friction the tires can supply without slipping
+            throttle_percent = max_traction/max_force # Set the 'throttle' so that the car doesn't spin the tires
+            if throttle_percent > 1: # Don't let throttle_percent go over 1 or under 0
+                throttle_percent = 1
+            elif throttle_percent < 0:
+                throttle_percent = 0
+            
+            a = (max_force * throttle_percent) / self.mass
+            a_avg = (a + a_prev)/2
+            v += a_avg*self.dt
+            t += self.dt
+            
+            #Print stuff for debugging
+            print("Time: " + str(t))
+            print("RPM: " + str(self.drivetrain.rpm) + "\tPower: " + str(self.drivetrain.getPower()) + "\tTorque: " + str(self.drivetrain.getTorque()) + "\tThrottle: " + str(throttle_percent))
+            print("Distance: " + str(d) + "\tVelocity: " + str(v) + "\tAccel: " + str(a_avg) + "\n")
                 
         # The previous loop exited, so now it is time to slow down by subtracting the braking acceleration from velocity
         #************This needs to be changed (probably dramatically) to switch to a force based model
