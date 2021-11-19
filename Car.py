@@ -71,7 +71,7 @@ class Car:
             
             # Some calculations to figure out how much throttle to use
             max_force = self.drivetrain.getWheelForce() - self.getDrag(v) # The most force that the engine can supply minus drag
-            max_traction = self.mu * (self.mass*9.81 + self.getDownforce(v)) # The most friction the tires can supply without slipping
+            max_traction = self.mu * (self.mass*9.81 + self.getDownforce(v)/2) # The most friction the tires can supply without slipping
             throttle_percent = max_traction/max_force # Set the 'throttle' so that the car doesn't spin the tires
             if throttle_percent > 1: # Don't let throttle_percent go over 1 or under 0
                 throttle_percent = 1
