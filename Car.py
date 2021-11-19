@@ -26,25 +26,8 @@ class Car:
     def findCorneringSpeed(self, radius):
         # Returns the maximum speed in meters per second that the car could go through a corner of given radius
         # Finds speed where centripetal force = cornering force.
-
         return sqrt(self.mu*self.mCar*9.81 / (self.mCar/radius - 0.5*self.mu*self.DAir*self.CLA))
-
-        # radius = radius
         
-        # a = self.mass/radius - self.mu*self.df[0]
-        # b = self.mu*self.df[1]
-        # c = -1*self.mu*(self.mass*9.81 + self.df[2])
-        
-        # v = max(quadraticFormula(a,b,c))
-
-        # if v > self.df[4]:
-        #     return v
-        # else:
-        #     a = 1
-        #     b = -radius/self.mass * self.mu * self.df[3]/self.df[4]
-        #     c = -radius * self.mass * self.mu * 9.81
-        #     return max(quadraticFormula(a,b,c))
-
     def findCorneringTime(self, radius, theta):
         # Returns time to go through a corner in seconds given the radius of the turn in meters and the angle of the turn
         # Uses Car.findCorneringSpeed() to find velocity through turn, then computes time through turn with t = d/v
@@ -73,10 +56,7 @@ class Car:
             max_force = self.drivetrain.getWheelForce() - self.getDrag(v) # The most force that the engine can supply minus drag
             max_traction = self.mu * (self.mass*9.81 + self.getDownforce(v)/2) # The most friction the tires can supply without slipping
             throttle_percent = max_traction/max_force # Set the 'throttle' so that the car doesn't spin the tires
-            if throttle_percent > 1: # Don't let throttle_percent go over 1 or under 0
-                throttle_percent = 1
-            elif throttle_percent < 0:
-                throttle_percent = 0
+            throttle_percent = saturate(throttle_percent, 0, 1)
             
             a = (max_force * throttle_percent) / self.mass
             a_avg = (a + a_prev)/2
