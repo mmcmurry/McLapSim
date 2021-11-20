@@ -26,14 +26,14 @@ def findLapTime(car, track, ax_bool=None):
         
     return t
             
-def findDynamicTimes(self, p_bool, autox_track, endurance_track):
+def findDynamicTimes(car, p_bool, autox_track, endurance_track):
     # Calculates times in acceleration, skidpad, autocross, and endurance using car parameters and points data from Lincoln 2017
     times = []
-    times.append(round(self.findStraightTime(0, -1, 75), 3))
-    times.append(round(self.findCorneringTime(8.12, 360), 3))
-    times.append(round(self.findLapTime(autox_track, True), 3))
-    times.append(round(self.findLapTime(endurance_track) * 16, 3)) # Endurance is 16 laps, so just multiply the time of one lap times 16
+    times.append(round(car.findStraightTime(0, -1, 75), 3))
+    times.append(round(car.findCorneringTime(8.12, 360), 3))
+    times.append(round(findLapTime(car, autox_track, True), 3))
+    times.append(round(findLapTime(car, endurance_track) * 16, 3)) # Endurance is 16 laps, so just multiply the time of one lap times 16
     if p_bool:
-        print(self.name + ' dynamic event times: ')
+        print(car.name + ' dynamic event times: ')
         print('Accel: ' + str(times[0]) + '\tSkidpad: ' + str(times[1]) + '\tAutoX: ' + str(times[2]) + '\tEnduro: ' + str(times[3]) + '\n')
     return times

@@ -1,4 +1,5 @@
-import Car, Powertrain
+from Car import Car
+from Powertrain import Powertrain
 from utils import *
 from Sim import *
 import numpy as np
@@ -23,7 +24,7 @@ a_brake18 = 1.3 * 9.81 # m/s^2
 CLA = 2     # m^2
 CDA = 1     # m^2
 DAir = 1.23 # kg/m^3
-Jinx = Car("Jinx", m_car+m_driver+m_aero, powertrain, mu, a_brake, CLA, CDA, DAir)
+Jinx = Car("Jinx", m_car+m_driver+m_aero, powertrain, mu, a_brake18, CLA, CDA, DAir)
 
 # Simulate car
 findDynamicTimes(Jinx, True, autoxTrack, enduroTrack)

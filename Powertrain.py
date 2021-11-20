@@ -1,6 +1,6 @@
 from math import pi
 import numpy as np
-import utils
+from utils import *
 
 class Powertrain:
 	def __init__(self, PEngineTable, rGearRatios, rFinalDriveRatio, rTire):
@@ -54,7 +54,7 @@ class Powertrain:
 					return self.gear
 			self.setRPM(velocity)
 					
-		print("Gear: " + str(self.gear))
+		#print("Gear: " + str(self.gear))
 		return self.gear	
 	
 	def getPower(self):
