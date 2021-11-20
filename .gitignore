@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+__pycache__/Car.cpython-36.pyc
+__pycache__/Powertrain.cpython-36.pyc
+__pycache__/Sim.cpython-36.pyc
+__pycache__/utils.cpython-36.pyc
