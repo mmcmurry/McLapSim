@@ -33,3 +33,17 @@ def interp2(x, y, xq, extrap):
             return y[length-1]
         else:
             return y[0]
+
+def readTrackFile(path):
+		# Turns a .txt file into a track. Works when you copy/paste radius/angle/distance data from Excel into Notepad
+		file = open(path)
+		track = []
+		
+		for line in file:
+			turn = line.split('\t')
+			for i in range(3):
+				turn[i] = float(turn[i])
+			track.append(turn)
+			
+		file.close()
+		return track
