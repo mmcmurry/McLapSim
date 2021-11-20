@@ -3,6 +3,7 @@ from Powertrain import Powertrain
 from utils import *
 from Sim import *
 import numpy as np
+import time
 
 # Create tracks
 autoxTrack = readTrackFile("Tracks/2017 autocross map.txt")
@@ -27,4 +28,7 @@ DAir = 1.23 # kg/m^3
 Jinx = Car("Jinx", m_car+m_driver+m_aero, powertrain, mu, a_brake18, CLA, CDA, DAir)
 
 # Simulate car
-findDynamicTimes(Jinx, True, autoxTrack, enduroTrack)
+Jinx.findStraightTime(1, -1, 75)
+# t0 = time.time()
+# findDynamicTimes(Jinx, True, autoxTrack, enduroTrack)
+# print("Calculation time: " + str(time.time() - t0))

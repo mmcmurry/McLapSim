@@ -31,29 +31,34 @@ class Powertrain:
 		self.rpm = velocity/self.rTire * self.rGearRatios[self.gear-1] * self.rFinalDriveRatio * 60 / (2*pi)
 		if self.rpm < self.nEngineMin and self.gear == 1: # Don't let the engine 'stall'
 			self.rpm = self.nEngineMin
+		if self.rpm > self.nEngineMax and self.gear == len(self.rGearRatios)-1: # Don't let the engine overrev
+			self.rpm = self.nEngineMax
 		
 		return self.rpm
 	
 	def selectGear(self, velocity):
 	# Given velocity, select the correct gear based on minimum and maximum rpms
 		self.setRPM(velocity)
-		while(self.overrev() or self.underrev()):
-			# Upshift if revs are too high and not in final gear
-			if self.overrev():
-				if self.gear != len(self.rGearRatios):
-					self.gear += 1
-				else:
-					#print("Redline in 6th!")
-					return self.gear
-			# Downshift if revs are too low and not in 1st gear		
-			elif self.underrev():
-				if self.gear != 1:
-					self.gear -= 1
-				else:
-					#print("Engine stalling in 1st!")
-					return self.gear
-			self.setRPM(velocity)
-					
+		# Upshift if revs are too high and not in final gear
+		if self.overrev():
+			if self.gear != len(self.rGearRatios):
+				self.gear += 1
+				self.setRPM(velocity)
+				return self.gear
+			else:
+				#print("Redline in 6th!")
+				return self.gear
+		
+		# Downshift if revs are too low and not in 1st gear		
+		elif self.underrev():
+			if self.gear != 1:
+				self.gear -= 1
+				self.setRPM(velocity)
+				return self.gear
+			else:
+				#print("Engine stalling in 1st!")
+				return self.gear
+			
 		#print("Gear: " + str(self.gear))
 		return self.gear	
 	

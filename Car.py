@@ -1,6 +1,7 @@
 from utils import *
 from math import pi
 import numpy as np
+import time
 
 class Car:
     def __init__(self, name, mCar, powertrain, mu, a_brake, cla, cda, DAir):
@@ -54,7 +55,9 @@ class Car:
             d += v*self.dt + (0.5*a_prev*self.dt**2)
             
             # Some calculations to figure out how much throttle to use
+            t = time.time()
             max_force = self.powertrain.getWheelForce() - self.getDrag(v) # The most force that the engine can supply minus drag
+            print(time.time() - t)
             max_traction = self.mu * (self.mCar*9.81 + self.getDownforce(v)/2) # The most friction the tires can supply without slipping
             throttle_percent = max_traction/max_force # Set the 'throttle' so that the car doesn't spin the tires
             throttle_percent = saturate(throttle_percent, 0, 1)
