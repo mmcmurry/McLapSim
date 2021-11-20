@@ -1,19 +1,21 @@
 from math import pi
+import numpy as np
+import utils
 
 class Powertrain:
 	def __init__(self, PEngineTable, rGearRatios, rFinalDriveRatio, rTire):
-		self.PEngineTable = PEngineTable # A list of length 2 lists that are points on the power curve
-		self.nEngineMin = PEngineTable[0][0]
-		self.nEngineMax = PEngineTable[len(PEngineTable)-1][0]
-		self.PEngineMin = PEngineTable[0][1]
-		self.PEngineMax = PEngineTable[len(PEngineTable)-1][1]
+		self.PEngineTable = PEngineTable # A numpy matrix with col0=nEngine, col1=PEngine
+		self.nEngineMin = PEngineTable[0,1]
+		self.nEngineMax = PEngineTable[0,-1]
+		self.PEngineMin = PEngineTable[:,1].min()
+		self.PEngineMax = PEngineTable[:,1].max()
 		self.rGearRatios = rGearRatios
 		self.rFinalDriveRatio = rFinalDriveRatio
 		self.rTire = rTire
 		
-		for i in range(len(PEngineTable)-1):
-			dP_dn = (PEngineTable[i][1]-PEngineTable[i+1][1]) / (PEngineTable[i][0]-PEngineTable[i+1][0])
-			PEngineTable[i].append(dP_dn) # The slope from point i to point i+1
+		# for i in range(len(PEngineTable)-1):
+		# 	dP_dn = (PEngineTable[i][1]-PEngineTable[i+1][1]) / (PEngineTable[i][0]-PEngineTable[i+1][0])
+		# 	PEngineTable[i].append(dP_dn) # The slope from point i to point i+1
 		
 		self.rpm = self.nEngineMin
 		self.gear = 1
@@ -59,12 +61,13 @@ class Powertrain:
 	# Returns power in Watts based on current rpm of the engine. Uses linear interpolation between points in PEngineTable
 	#!!! Doesn't give any power if less than min rpm !!!
 	#y=m(x-x1)+y1
-		power = 0
-		for i in range(len(self.PEngineTable)-1):
-			if self.rpm >= self.PEngineTable[i][0] and self.rpm < self.PEngineTable[i+1][0]:
-				power = self.PEngineTable[i][2] * (self.rpm - self.PEngineTable[i][0]) + self.PEngineTable[i][1]
+		return interp2(self.PEngineTable[:,0], self.PEngineTable[:,1], self.rpm, False)
+		# power = 0
+		# for i in range(len(self.PEngineTable)-1):
+		# 	if self.rpm >= self.PEngineTable[i][0] and self.rpm < self.PEngineTable[i+1][0]:
+		# 		power = self.PEngineTable[i][2] * (self.rpm - self.PEngineTable[i][0]) + self.PEngineTable[i][1]
 			
-		return power
+		# return power
 	
 	def getTorque(self):
 	# Finds torque in N*m from power at current rpm 
