@@ -12,3 +12,24 @@ def quadraticFormula(a,b,c):
 def saturate(x, lb, ub):
     # Equivalent to Simulink saturation block. Bounds x between upper and lower bounds lb and ub.
     return max(lb, min(ub, x))
+
+def interp2(x, y, xq, extrap):
+    # Interpolate through table f(x)=y at query point xq. Can extrapolate if out of bounds of table or clip.
+    length = len(x)
+
+    for i in range(length-1):
+        if xq > x[i] and xq <= x[i+1]:
+            return y[i] + (y[i+1] - y[i]) / (x[i+1] - x[i]) * (xq - x[i])
+
+    if extrap:
+        # Linear extrapolation
+        if xq > max(x):
+            return y[length-1] + (y[length-1] - y[length-2]) / (x[length-1] - x[length-2]) * (xq - x[length-1])
+        else:
+            return y[0] - (y[1] - y[0]) / (x[1] - x[0]) * (x[0] - xq)
+    else:
+        # Clipping
+        if xq > max(x):
+            return y[length-1]
+        else:
+            return y[0]
